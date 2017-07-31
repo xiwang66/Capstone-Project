@@ -5,6 +5,8 @@ movies <-
 ratings<-
   read.csv("D:/Dropbox/Capston/Data/ml-latest-small/ratings.csv", header = TRUE, stringsAsFactors = FALSE)
 
+options(useFancyQuotes = FALSE) 
+
 str(movies)
 str(ratings)
 
@@ -24,7 +26,7 @@ ratings <- as.matrix(ratings[, -1])
 
 #Create a recommenderlab sparse matrix
 ratings <- as(ratings, 'realRatingMatrix')
-
+ ratings
 
 #Create a RecommenderLab Evaluation Scheme, 
 #Splitting the ratings into a Training set and a Test set:
@@ -40,12 +42,14 @@ evaluation_scheme <- evaluationScheme(
   goodRating=5,
   given=10)
 
-
 ratings_train <- getData(evaluation_scheme, 'train')
+ratings_train
 
 ratings_test_known <- getData(evaluation_scheme, 'known')
+ratings_test_known
 
 ratings_test_unknown <- getData(evaluation_scheme, 'unknown')
+ratings_test_unknown
 
 
 # Popularity-Based Recommender
@@ -118,6 +122,7 @@ user_based_cofi_rec <- Recommender(
     nn=50                  
   ))
 
+
 #Obtain top 10 recommendations for 1st user in dataset
 user_based_cofi_rec_pred  <-
   predict(user_based_cofi_rec, ratings[1], n = 10) 
@@ -141,10 +146,12 @@ user_based_cofi_rec_result
 
 #Compare algorithms with different parameter, finding the one with the best result
 algorithms_SVD <- list(
-  "latent_factor CF1" = list(name = "SVD", param = list(k = 5)),
-  "latent_factor CF2" = list(name = "SVD", param = list(k = 10)),
-  "latent_factor CF3" = list(name = "SVD", param = list(k = 20)),
-  "latent_factor CF4" = list(name = "SVD", param = list(k = 30))
+  "latent_factor CF1" = list(name = "SVD", param = list(k = 10,maxiter = 60)),
+  "latent_factor CF2" = list(name = "SVD", param = list(k = 20, maxiter = 60)),
+  "latent_factor CF3" = list(name = "SVD", param = list(k = 10, maxiter = 80)),
+  "latent_factor CF4" = list(name = "SVD", param = list(k = 20, maxiter = 80)),
+  "latent_factor CF5" = list(name = "SVD", param = list(k = 10, maxiter = 100)),
+  "latent_factor CF6" = list(name = "SVD", param = list(k = 20, maxiter = 100))
 )
 
 #n=c denote top-N
@@ -157,7 +164,7 @@ plot(evaluation_results_SVD, legend = "bottomright")
 #plot the avged prec/rec
 plot(evaluation_results_SVD, "prec/rec") 
 
-# As we can see from the result, CF2 is the best, thus we will use its parameter in the following section
+# As we can see from the result, CF5 is the best, thus we will use its parameter in the following section
 
 #Latent-Factor Collaborative Filtering Recommender with matrix factorization by Singular-Value Decomposition (SVD)
 # number of latent factors is set to be 10
@@ -196,7 +203,7 @@ plot(evaluation_results_SVD, "prec/rec")
      "random items" = list(name = "RANDOM", param = NULL),
      "popular items" = list(name = "POPULAR", param = NULL),
      "user-based CF" = list(name = "UBCF", param = list(method = "Cosine", nn =50)),
-     "Latent CF" = list(name = "SVD", param = list(k = 10))
+     "Latent CF" = list(name = "SVD", param = list(k = 10, maxiter = 100))
    )
    
 #n=c denote top-N   
@@ -257,7 +264,7 @@ plot(evaluation_results, "prec/rec")
    
 #Comparison of RMSE, MSE, and MAE for recommender methods for the evaluation scheme.
    eval_ratings_results <- evaluate(evaluation_scheme, algorithms, type = "ratings")
-   plot(eval_ratings_results)
+   plot(eval_ratings_results, legend="topright")
    
 
    
